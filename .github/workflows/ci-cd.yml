@@ -1,0 +1,49 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code11111
+        uses: actions/checkout@v2
+
+      - name: Set up Python22222
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r app/requirements.txt
+
+      - name: Run Tests
+        run: pytest  # add your tests if you have any
+
+      - name: Build Docker Image
+        run: docker build -t sentiment-analysis-app .
+
+      - name: Push Docker Image to Docker Hub
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
+          docker tag sentiment-analysis-app $DOCKER_USER/sentiment-analysis-app:latest
+          docker push $DOCKER_USER/sentiment-analysis-app:latest
+
+      - name: Deploy to Server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
+          scp -i private_key docker-compose.yml $SERVER_IP:/home/wenboliu68/testDeployment1
+          ssh -i private_key $SERVER_IP 'docker-compose -f /home/wenboliu68/testDeployment1/docker-compose.yml up -d --build'
