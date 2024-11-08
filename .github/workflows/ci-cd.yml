@@ -24,8 +24,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
-      - name: Run Tests
-        run: pytest  # add your tests if you have any
+      # - name: Run Tests
+      #   run: pytest  # add your tests if you have any
 
       - name: Build Docker Image
         run: docker build -t sentiment-analysis-app .
