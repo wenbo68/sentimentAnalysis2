@@ -1,0 +1,4 @@
+torch
+transformers
+fastapi             # For creating the API
+uvicorn             # For running the FastAPI server
