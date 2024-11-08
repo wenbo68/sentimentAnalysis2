@@ -47,6 +47,7 @@ jobs:
           SERVER_IP: ${{ secrets.SERVER_IP }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
+          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
           echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
           scp -i private_key docker-compose.yml $SERVER_IP:/home/wenboliu68/testDeployment1
           ssh -i private_key $SERVER_IP 'docker-compose -f /home/wenboliu68/testDeployment1/docker-compose.yml up -d --build'
