@@ -52,7 +52,7 @@ jobs:
 
       - name: Copy files to EC2 instance
         run: |
-          scp -i testKeyPair1.pem docker-compose.yml ec2-user@ec2-44-201-89-93.compute-1.amazonaws.com:/home/ec2-user/testDeployment1
+          scp -i testKeyPair1.pem docker-compose.yml ec2-user@ec2-44-201-89-93.compute-1.amazonaws.com:/home/ec2-user/testDeployment1/
         
       - name: SSH into EC2 and deploy
         run: |
