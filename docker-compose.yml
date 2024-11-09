@@ -1,5 +1,0 @@
-services:
-  sentiment-analysis-app:
-    image: your_dockerhub_username/sentiment-analysis-app:latest
-    ports:
-      - "80:80"
