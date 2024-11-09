@@ -42,13 +42,25 @@ jobs:
           docker tag sentiment-analysis-app ${{ secrets.DOCKER_USER }}/sentiment-analysis-app:latest
           docker push ${{ secrets.DOCKER_USER }}/sentiment-analysis-app:latest
 
-      - name: Deploy to Server
-        env:
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Set up SSH key
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
-          echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
-          scp -i private_key docker-compose.yml $SERVER_IP:/home/wenboliu68/testDeployment1
-          ssh -i private_key $SERVER_IP 'docker-compose -f /home/wenboliu68/testDeployment1/docker-compose.yml up -d --build'
+          # Decode and save the private key file
+          echo "$AWS_EC2_KEY" > testKeyPair1.pem
+          chmod 400 testKeyPair1.pem  # Set permissions for the key
+
+      - name: Add EC2 instance to known hosts
+        run: |
+          ssh-keyscan -H ec2-44-201-89-93.compute-1.amazonaws.com >> ~/.ssh/known_hosts
+
+      - name: Copy files to EC2 instance
+        run: |
+          scp -i testKeyPair1.pem docker-compose.yml ec2-user@ec2-44-201-89-93.compute-1.amazonaws.com:/home/ec2-user/testDeployment1
+        
+      - name: SSH into EC2 and deploy
+        run: |
+          ssh -i testKeyPair1.pem ec2-user@ec2-44-201-89-93.compute-1.amazonaws.com << 'EOF'
+          docker-compose -f /home/ec2-user/testDeployment1/docker-compose.yml up -d --build
+          EOF
+
+      - name: Clean up SSH key
+        run: rm testKeyPair1.pem  # Remove the key after deployment
