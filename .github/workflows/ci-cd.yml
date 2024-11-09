@@ -50,7 +50,7 @@ jobs:
 
       - name: Add EC2 instance to known hosts
         run: |
-          mkdir -p ~/.ssh/known_hosts
+          mkdir -p ~/.ssh
           ssh-keyscan -H ec2-44-201-89-93.compute-1.amazonaws.com >> ~/.ssh/known_hosts
 
       - name: Copy files to EC2 instance
