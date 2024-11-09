@@ -47,11 +47,11 @@ jobs:
       - name: Add EC2 instance to known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ec2-44-201-89-93.compute-1.amazonaws.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.PUBLIC_DNS }} >> ~/.ssh/known_hosts
 
       - name: SSH into EC2 and run Docker container
         run: |
-          ssh -i testKeyPair1.pem ec2-user@ec2-44-201-89-93.compute-1.amazonaws.com << 'EOF'
+          ssh -i testKeyPair1.pem ${{ secrets.SERVER_USERNAME }}@${{ secrets.PUBLIC_DNS }} << 'EOF'
           docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}  # Optional if private repo
           docker run -d --name sentiment-analysis-app -p 8080:80 ${{ secrets.DOCKER_USER }}/sentiment-analysis-app:latest
           EOF
