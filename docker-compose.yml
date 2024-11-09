@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   sentiment-analysis-app:
     image: your_dockerhub_username/sentiment-analysis-app:latest
