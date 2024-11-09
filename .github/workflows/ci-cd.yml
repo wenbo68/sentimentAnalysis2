@@ -10,13 +10,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    env:
-      IMAGE_NAME: sentiment-analysis-image
-      TAG_NAME: ${{ github.sha }}  # Use the commit SHA as the Docker tag
-      CONTAINER_NAME: sentiment-analysis-container
-      CONTAINER_PORT: 80
-      SERVER_PORT: 8080
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -35,7 +28,7 @@ jobs:
       #   run: pytest  # add your tests if you have any
 
       - name: Build Docker Image
-        run: docker build -t $IMAGE_NAME .
+        run: docker build -t ${{ vars.IMAGE_NAME }} .
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -45,8 +38,8 @@ jobs:
 
       - name: Push Docker Image to Docker Hub
         run: |
-          docker tag $IMAGE_NAME ${{ secrets.DOCKER_USER }}/$IMAGE_NAME:$TAG_NAME
-          docker push ${{ secrets.DOCKER_USER }}/$IMAGE_NAME:$TAG_NAME
+          docker tag ${{ vars.IMAGE_NAME }} ${{ secrets.DOCKER_USER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Set permissions on testKeyPair1.pem
         run: chmod 400 testKeyPair1.pem
@@ -60,7 +53,7 @@ jobs:
         run: |
           ssh -i testKeyPair1.pem ${{ secrets.SERVER_USERNAME }}@${{ secrets.PUBLIC_DNS }} << 'EOF'
           docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}  # Optional if private repo
-          docker stop $CONTAINER_NAME
-          docker rm $CONTAINER_NAME
-          docker run -d --name $CONTAINER_NAME -p $SERVER_PORT:$CONTAINER_PORT ${{ secrets.DOCKER_USER }}/$IMAGE_NAME:$TAG_NAME
+          docker stop ${{ vars.CONTAINER_NAME }}
+          docker rm ${{ vars.CONTAINER_NAME }}
+          docker run -d --name ${{ vars.CONTAINER_NAME }} -p ${{ vars.SERVER_PORT }}:${{ vars.CONTAINER_PORT }} ${{ secrets.DOCKER_USER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
           EOF
