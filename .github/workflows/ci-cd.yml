@@ -50,9 +50,13 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ec2-44-201-89-93.compute-1.amazonaws.com >> ~/.ssh/known_hosts
 
+      - name: Ensure testDeployment1 directory exists on EC2
+        run: |
+          ssh -i testKeyPair1.pem ec2-user@ec2-44-201-89-93.compute-1.amazonaws.com "mkdir -p /home/ec2-user/testDeployment1"
+
       - name: Copy files to EC2 instance
         run: |
-          mkdir -p /home/ec2-user/testDeployment1/
+          
           scp -i testKeyPair1.pem docker-compose.yml ec2-user@ec2-44-201-89-93.compute-1.amazonaws.com:/home/ec2-user/testDeployment1/
         
       - name: SSH into EC2 and deploy
